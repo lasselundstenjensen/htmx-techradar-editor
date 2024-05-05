@@ -1,5 +1,5 @@
 <h1>CSV Data</h1>
-<form hx-post="/save" hx-target="#result" hx-swap="outerHTML" hx-encoding="multipart/form-data">
+<form hx-post="/save" hx-trigger="change" hx-target="#result" hx-swap="outerHTML" hx-encoding="multipart/form-data">
     <div class="row header">
         <div class="cell">Name</div>
         <div class="cell">Ring</div>
@@ -12,24 +12,24 @@
 
     {{range $index, $row := .Data.Rows}}
     <div class="row">
-        <div class="cell"><input type="text" name="name" value="{{safe $row.Name}}"></div>
-        <div class="cell"><input type="text" name="ring" value="{{safe $row.Ring}}"></div>
-        <div class="cell"><input type="text" name="quadrant" value="{{safe $row.Quadrant}}"></div>
+        <div class="cell"><input type="text" name="name" value="{{safe $row.Name}}" hx-trigger="change"></div>
+        <div class="cell"><input type="text" name="ring" value="{{safe $row.Ring}}" hx-trigger="change"></div>
+        <div class="cell"><input type="text" name="quadrant" value="{{safe $row.Quadrant}}" hx-trigger="change"></div>
         <div class="cell">
             <input type="hidden" name="isNew" value="false">
-            <input type="checkbox" name="isNew" value="true" {{if $row.IsNew}}checked{{end}}>
+            <input type="checkbox" name="isNew" value="true" {{if $row.IsNew}}checked{{end}} hx-trigger="change">
         </div>
-        <div class="cell"><input type="number" name="move" value="{{safe (print $row.Move)}}"></div>
-        <div class="cell"><input type="text" name="description" value="{{safe $row.Description}}"></div>
+        <div class="cell"><input type="number" name="move" value="{{safe (print $row.Move)}}" hx-trigger="change"></div>
+        <div class="cell"><input type="text" name="description" value="{{safe $row.Description}}" hx-trigger="change"></div>
         <div class="cell">
-            <button type="button" hx-post="/delete/{{$index}}" hx-target="#result" hx-swap="outerHTML">Delete</button>
+            <button type="button" hx-post="/delete/{{$index}}" hx-trigger="click" hx-target="#result" hx-swap="outerHTML">Delete</button>
         </div>
     </div>
     {{end}}
 
     <div class="row">
         <div class="cell" colspan="7">
-            <button type="button" hx-post="/add" hx-target="#result" hx-swap="outerHTML">Add Row</button>
+            <button type="button" hx-post="/add" hx-trigger="click" hx-target="#result" hx-swap="outerHTML">Add Row</button>
         </div>
     </div>
 </form>

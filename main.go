@@ -175,8 +175,6 @@ func main() {
 
 	// Download CSV file
 	r.GET("/download", func(c *gin.Context) {
-		saveChanges(c.Request)
-
 		c.Header("Content-Disposition", "attachment; filename=table.csv")
 		c.Header("Content-Type", "text/csv")
 
