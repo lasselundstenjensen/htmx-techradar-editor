@@ -1,0 +1,19 @@
+<h1>CSV Data</h1>
+<div>
+    <div class="row header">
+        {{range .Data.Headers}}
+        <div class="cell">{{.}}</div>
+        {{end}}
+    </div>
+    {{range .Data.Rows}}
+    <div class="row">
+        <div class="cell">{{safe .Name}}</div>
+        <div class="cell">{{safe .Ring}}</div>
+        <div class="cell">{{safe .Quadrant}}</div>
+        <div class="cell">{{safe .IsNew}}</div>
+        <div class="cell">{{safe .Move}}</div>
+        <div class="cell">{{safe .Description}}</div>
+    </div>
+    {{end}}
+</div>
+<a href="/">Back</a>
