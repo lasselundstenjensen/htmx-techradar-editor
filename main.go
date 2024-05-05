@@ -24,6 +24,8 @@ type CSVData struct {
 	Rows    []CSVRow
 }
 
+var csvData CSVData
+
 func parseCSVRecord(record []string) (CSVRow, error) {
 	if len(record) != 6 {
 		return CSVRow{}, errors.New("incorrect number of columns")
@@ -98,12 +100,34 @@ func main() {
 			}
 		}
 
+		csvData = CSVData{
+			Headers: headers,
+			Rows:    rows,
+		}
+
 		c.HTML(http.StatusOK, "result.html", gin.H{
-			"Data": CSVData{
-				Headers: headers,
-				Rows:    rows,
-			},
+			"Data": csvData,
 		})
+	})
+
+	// Download CSV file
+	r.GET("/download", func(c *gin.Context) {
+		c.Header("Content-Disposition", "attachment; filename=table.csv")
+		c.Header("Content-Type", "text/csv")
+
+		writer := csv.NewWriter(c.Writer)
+		writer.Write(csvData.Headers)
+		for _, row := range csvData.Rows {
+			writer.Write([]string{
+				row.Name,
+				row.Ring,
+				row.Quadrant,
+				strconv.FormatBool(row.IsNew),
+				strconv.Itoa(row.Move),
+				row.Description,
+			})
+		}
+		writer.Flush()
 	})
 
 	r.Run(":8080")
