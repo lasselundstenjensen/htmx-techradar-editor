@@ -51,6 +51,33 @@ func parseCSVRecord(record []string) (CSVRow, error) {
 	}, nil
 }
 
+func saveChanges(form *http.Request) {
+	form.ParseMultipartForm(1024)
+	var updatedRows []CSVRow
+	names := form.PostForm["name"]
+	rings := form.PostForm["ring"]
+	quadrants := form.PostForm["quadrant"]
+	isNews := form.PostForm["isNew"]
+	moves := form.PostForm["move"]
+	descriptions := form.PostForm["description"]
+
+	for i := 0; i < len(names); i++ {
+		isNew := isNews[i] == "true"
+		move, _ := strconv.Atoi(moves[i])
+
+		updatedRows = append(updatedRows, CSVRow{
+			Name:        names[i],
+			Ring:        rings[i],
+			Quadrant:    quadrants[i],
+			IsNew:       isNew,
+			Move:        move,
+			Description: descriptions[i],
+		})
+	}
+
+	csvData.Rows = updatedRows
+}
+
 func main() {
 	r := gin.Default()
 
@@ -112,31 +139,7 @@ func main() {
 
 	// Save changes made to the CSV table
 	r.POST("/save", func(c *gin.Context) {
-		var updatedRows []CSVRow
-		form, _ := c.MultipartForm()
-		names := form.Value["name"]
-		rings := form.Value["ring"]
-		quadrants := form.Value["quadrant"]
-		isNews := form.Value["isNew"]
-		moves := form.Value["move"]
-		descriptions := form.Value["description"]
-
-		for i := 0; i < len(names); i++ {
-			isNew, _ := strconv.ParseBool(isNews[i])
-			move, _ := strconv.Atoi(moves[i])
-
-			updatedRows = append(updatedRows, CSVRow{
-				Name:        names[i],
-				Ring:        rings[i],
-				Quadrant:    quadrants[i],
-				IsNew:       isNew,
-				Move:        move,
-				Description: descriptions[i],
-			})
-		}
-
-		csvData.Rows = updatedRows
-
+		saveChanges(c.Request)
 		c.HTML(http.StatusOK, "result.html", gin.H{
 			"Data": csvData,
 		})
@@ -144,7 +147,15 @@ func main() {
 
 	// Add a new row
 	r.POST("/add", func(c *gin.Context) {
-		csvData.Rows = append(csvData.Rows, CSVRow{})
+		saveChanges(c.Request)
+		csvData.Rows = append(csvData.Rows, CSVRow{
+			Name:        "",
+			Ring:        "",
+			Quadrant:    "",
+			IsNew:       false,
+			Move:        0,
+			Description: "",
+		})
 		c.HTML(http.StatusOK, "result.html", gin.H{
 			"Data": csvData,
 		})
@@ -152,6 +163,7 @@ func main() {
 
 	// Delete a row
 	r.POST("/delete/:index", func(c *gin.Context) {
+		saveChanges(c.Request)
 		index, _ := strconv.Atoi(c.Param("index"))
 		if index >= 0 && index < len(csvData.Rows) {
 			csvData.Rows = append(csvData.Rows[:index], csvData.Rows[index+1:]...)
@@ -163,6 +175,8 @@ func main() {
 
 	// Download CSV file
 	r.GET("/download", func(c *gin.Context) {
+		saveChanges(c.Request)
+
 		c.Header("Content-Disposition", "attachment; filename=table.csv")
 		c.Header("Content-Type", "text/csv")
 
