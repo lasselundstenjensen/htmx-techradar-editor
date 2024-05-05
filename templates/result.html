@@ -1,5 +1,5 @@
 <h1>CSV Data</h1>
-<div>
+<form hx-post="/save" hx-target="#result" hx-swap="outerHTML">
     <div class="row header">
         <div class="cell">Name</div>
         <div class="cell">Ring</div>
@@ -7,18 +7,30 @@
         <div class="cell">IsNew</div>
         <div class="cell">Move</div>
         <div class="cell">Description</div>
+        <div class="cell">Actions</div>
     </div>
-    {{range .Data.Rows}}
+
+    {{range $index, $row := .Data.Rows}}
     <div class="row">
-        <div class="cell">{{safe .Name}}</div>
-        <div class="cell">{{safe .Ring}}</div>
-        <div class="cell">{{safe .Quadrant}}</div>
-        <div class="cell">{{safe (print .IsNew)}}</div>
-        <div class="cell">{{safe (print .Move)}}</div>
-        <div class="cell">{{safe .Description}}</div>
+        <div class="cell"><input type="text" name="name" value="{{safe $row.Name}}"></div>
+        <div class="cell"><input type="text" name="ring" value="{{safe $row.Ring}}"></div>
+        <div class="cell"><input type="text" name="quadrant" value="{{safe $row.Quadrant}}"></div>
+        <div class="cell"><input type="checkbox" name="isNew" value="true" {{if $row.IsNew}}checked{{end}}></div>
+        <div class="cell"><input type="number" name="move" value="{{safe (print $row.Move)}}"></div>
+        <div class="cell"><input type="text" name="description" value="{{safe $row.Description}}"></div>
+        <div class="cell">
+            <button hx-post="/delete/{{$index}}" hx-target="#result" hx-swap="outerHTML">Delete</button>
+        </div>
     </div>
     {{end}}
-</div>
+
+    <div class="row">
+        <div class="cell" colspan="7">
+            <button hx-post="/add" hx-target="#result" hx-swap="outerHTML">Add Row</button>
+            <button type="submit">Save Changes</button>
+        </div>
+    </div>
+</form>
 
 <a href="/download">
     <button>Download as CSV</button>

@@ -110,6 +110,57 @@ func main() {
 		})
 	})
 
+	// Save changes made to the CSV table
+	r.POST("/save", func(c *gin.Context) {
+		var updatedRows []CSVRow
+		form, _ := c.MultipartForm()
+		names := form.Value["name"]
+		rings := form.Value["ring"]
+		quadrants := form.Value["quadrant"]
+		isNews := form.Value["isNew"]
+		moves := form.Value["move"]
+		descriptions := form.Value["description"]
+
+		for i := 0; i < len(names); i++ {
+			isNew, _ := strconv.ParseBool(isNews[i])
+			move, _ := strconv.Atoi(moves[i])
+
+			updatedRows = append(updatedRows, CSVRow{
+				Name:        names[i],
+				Ring:        rings[i],
+				Quadrant:    quadrants[i],
+				IsNew:       isNew,
+				Move:        move,
+				Description: descriptions[i],
+			})
+		}
+
+		csvData.Rows = updatedRows
+
+		c.HTML(http.StatusOK, "result.html", gin.H{
+			"Data": csvData,
+		})
+	})
+
+	// Add a new row
+	r.POST("/add", func(c *gin.Context) {
+		csvData.Rows = append(csvData.Rows, CSVRow{})
+		c.HTML(http.StatusOK, "result.html", gin.H{
+			"Data": csvData,
+		})
+	})
+
+	// Delete a row
+	r.POST("/delete/:index", func(c *gin.Context) {
+		index, _ := strconv.Atoi(c.Param("index"))
+		if index >= 0 && index < len(csvData.Rows) {
+			csvData.Rows = append(csvData.Rows[:index], csvData.Rows[index+1:]...)
+		}
+		c.HTML(http.StatusOK, "result.html", gin.H{
+			"Data": csvData,
+		})
+	})
+
 	// Download CSV file
 	r.GET("/download", func(c *gin.Context) {
 		c.Header("Content-Disposition", "attachment; filename=table.csv")
