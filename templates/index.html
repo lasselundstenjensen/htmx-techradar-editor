@@ -1,49 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Drag and Drop CSV</title>
+    <title>CSV Table Editor</title>
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Materialize Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://unpkg.com/htmx.org@1.9.2"></script>
     <style>
-        #dropzone {
+        .dropzone {
             border: 2px dashed #ccc;
             padding: 20px;
             text-align: center;
+            transition: background-color 0.2s, border-color 0.2s;
         }
-        .hover {
+
+        .dropzone.hover {
             border-color: #007bff;
             background-color: #e9f5ff;
-        }
-        .row {
-            display: flex;
-        }
-        .cell {
-            flex: 1;
-            padding: 5px;
-            border: 1px solid #ccc;
-        }
-        .header {
-            font-weight: bold;
-            background-color: #f0f0f0;
         }
     </style>
 </head>
 <body>
-    <h1>Drag and Drop CSV Upload</h1>
+
+<div class="container">
+    <h1 class="center-align">Drag and Drop CSV Upload</h1>
 
     <div
+        class="dropzone card-panel"
         id="dropzone"
         hx-post="/upload"
         hx-trigger="drop"
         hx-target="#result"
         hx-encoding="multipart/form-data"
         hx-include="[name=file]"
-        style="border: 2px dashed #ccc; padding: 20px; text-align: center;"
         ondrop="dropHandler(event)"
         ondragover="dragOverHandler(event)"
         ondragleave="dragLeaveHandler(event)"
         ondragenter="dragEnterHandler(event)"
     >
-        Drag and drop a CSV file here
+        <p>Drag and drop a CSV file here</p>
         <form>
             <input type="file" name="file" id="file" style="display: none;">
         </form>
@@ -51,28 +47,34 @@
 
     <div id="result" style="margin-top: 20px;"></div>
 
-    <script>
-        function dropHandler(event) {
-            event.preventDefault();
-            const inputFile = document.getElementById("file");
-            inputFile.files = event.dataTransfer.files;
-            inputFile.dispatchEvent(new Event("change", { "bubbles": true }));
-            document.getElementById("dropzone").classList.remove("hover");
-        }
+</div>
 
-        function dragOverHandler(event) {
-            event.preventDefault();
-        }
+<!-- Materialize JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
-        function dragLeaveHandler(event) {
-            event.preventDefault();
-            document.getElementById("dropzone").classList.remove("hover");
-        }
+<script>
+    function dropHandler(event) {
+        event.preventDefault();
+        const inputFile = document.getElementById("file");
+        inputFile.files = event.dataTransfer.files;
+        inputFile.dispatchEvent(new Event("change", { "bubbles": true }));
+        document.getElementById("dropzone").classList.remove("hover");
+    }
 
-        function dragEnterHandler(event) {
-            event.preventDefault();
-            document.getElementById("dropzone").classList.add("hover");
-        }
-    </script>
+    function dragOverHandler(event) {
+        event.preventDefault();
+    }
+
+    function dragLeaveHandler(event) {
+        event.preventDefault();
+        document.getElementById("dropzone").classList.remove("hover");
+    }
+
+    function dragEnterHandler(event) {
+        event.preventDefault();
+        document.getElementById("dropzone").classList.add("hover");
+    }
+</script>
+
 </body>
 </html>

@@ -1,43 +1,77 @@
-<h1>CSV Data</h1>
-<form hx-post="/save" hx-trigger="change" hx-target="#result" hx-swap="outerHTML" hx-encoding="multipart/form-data">
-    <div class="row header">
-        <div class="cell">Name</div>
-        <div class="cell">Ring</div>
-        <div class="cell">Quadrant</div>
-        <div class="cell">IsNew</div>
-        <div class="cell">Move</div>
-        <div class="cell">Description</div>
-        <div class="cell">Actions</div>
-    </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSV Table Editor</title>
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Materialize Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+</head>
+<body>
 
-    {{range $index, $row := .Data.Rows}}
-    <div class="row">
-        <div class="cell"><input type="text" name="name" value="{{safe $row.Name}}" hx-trigger="change"></div>
-        <div class="cell"><input type="text" name="ring" value="{{safe $row.Ring}}" hx-trigger="change"></div>
-        <div class="cell"><input type="text" name="quadrant" value="{{safe $row.Quadrant}}" hx-trigger="change"></div>
-        <div class="cell">
-            <input type="hidden" name="isNew" value="false">
-            <input type="checkbox" name="isNew" value="true" {{if $row.IsNew}}checked{{end}} hx-trigger="change">
+<div class="container">
+    <h1 class="center-align">CSV Data</h1>
+    <form hx-post="/save" hx-trigger="change" hx-target="#result" hx-swap="outerHTML" hx-encoding="multipart/form-data">
+        <table class="highlight responsive-table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Ring</th>
+                <th>Quadrant</th>
+                <th>IsNew</th>
+                <th>Move</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range $index, $row := .Data.Rows}}
+            <tr>
+                <td><input type="text" name="name" value="{{safe $row.Name}}" hx-trigger="change" hx-post="/save"></td>
+                <td><input type="text" name="ring" value="{{safe $row.Ring}}" hx-trigger="change" hx-post="/save"></td>
+                <td><input type="text" name="quadrant" value="{{safe $row.Quadrant}}" hx-trigger="change" hx-post="/save"></td>
+                <td>
+                    <label>
+                        <input type="hidden" name="isNew" value="false">
+                        <input type="checkbox" name="isNew" value="true" {{if $row.IsNew}}checked{{end}} hx-trigger="change" hx-post="/save">
+                        <span></span>
+                    </label>
+                </td>
+                <td><input type="number" name="move" value="{{safe (print $row.Move)}}" hx-trigger="change" hx-post="/save"></td>
+                <td><input type="text" name="description" value="{{safe $row.Description}}" hx-trigger="change" hx-post="/save"></td>
+                <td>
+                    <button class="btn red" type="button" hx-post="/delete/{{$index}}" hx-trigger="click" hx-target="#result" hx-swap="outerHTML">
+                        <i class="material-icons">delete</i>
+                    </button>
+                </td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+
+        <div class="right-align">
+            <button class="btn green" type="button" hx-post="/add" hx-trigger="click" hx-target="#result" hx-swap="outerHTML">
+                <i class="material-icons left">add</i> Add Row
+            </button>
         </div>
-        <div class="cell"><input type="number" name="move" value="{{safe (print $row.Move)}}" hx-trigger="change"></div>
-        <div class="cell"><input type="text" name="description" value="{{safe $row.Description}}" hx-trigger="change"></div>
-        <div class="cell">
-            <button type="button" hx-post="/delete/{{$index}}" hx-trigger="click" hx-target="#result" hx-swap="outerHTML">Delete</button>
-        </div>
-    </div>
-    {{end}}
+    </form>
 
-    <div class="row">
-        <div class="cell" colspan="7">
-            <button type="button" hx-post="/add" hx-trigger="click" hx-target="#result" hx-swap="outerHTML">Add Row</button>
-        </div>
-    </div>
-</form>
+    <form hx-post="/prepare-download" hx-target="#result" hx-swap="outerHTML">
+        <button class="btn blue" type="submit">
+            <i class="material-icons left">file_download</i> Download as CSV
+        </button>
+    </form>
 
-<a href="/download">
-    <button type="button">Download as CSV</button>
-</a>
+    <a href="/">
+        <button class="btn grey">
+            <i class="material-icons left">arrow_back</i> Back
+        </button>
+    </a>
+</div>
 
-<a href="/">
-    <button type="button">Back</button>
-</a>
+<!-- Materialize JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+</body>
+</html>
