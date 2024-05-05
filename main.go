@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"errors"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -21,6 +22,31 @@ type CSVRow struct {
 type CSVData struct {
 	Headers []string
 	Rows    []CSVRow
+}
+
+func parseCSVRecord(record []string) (CSVRow, error) {
+	if len(record) != 6 {
+		return CSVRow{}, errors.New("incorrect number of columns")
+	}
+
+	isNew, err := strconv.ParseBool(record[3])
+	if err != nil {
+		return CSVRow{}, errors.New("invalid boolean value")
+	}
+
+	move, err := strconv.Atoi(record[4])
+	if err != nil {
+		return CSVRow{}, errors.New("invalid integer value")
+	}
+
+	return CSVRow{
+		Name:        record[0],
+		Ring:        record[1],
+		Quadrant:    record[2],
+		IsNew:       isNew,
+		Move:        move,
+		Description: record[5],
+	}, nil
 }
 
 func main() {
@@ -55,6 +81,8 @@ func main() {
 		defer src.Close()
 
 		r := csv.NewReader(src)
+		r.Comma = ',' // Set the delimiter to a comma
+
 		records, err := r.ReadAll()
 		if err != nil {
 			c.String(http.StatusBadRequest, "Invalid CSV data")
@@ -64,28 +92,10 @@ func main() {
 		headers := []string{"name", "ring", "quadrant", "isNew", "move", "description"}
 		var rows []CSVRow
 		for _, record := range records[1:] {
-			if len(record) != len(headers) {
-				continue // Skip rows with incorrect column count
+			row, err := parseCSVRecord(record)
+			if err == nil {
+				rows = append(rows, row)
 			}
-
-			isNew, err := strconv.ParseBool(record[3])
-			if err != nil {
-				continue // Skip invalid boolean value
-			}
-
-			move, err := strconv.Atoi(record[4])
-			if err != nil {
-				continue // Skip invalid integer value
-			}
-
-			rows = append(rows, CSVRow{
-				Name:        record[0],
-				Ring:        record[1],
-				Quadrant:    record[2],
-				IsNew:       isNew,
-				Move:        move,
-				Description: record[5],
-			})
 		}
 
 		c.HTML(http.StatusOK, "result.html", gin.H{

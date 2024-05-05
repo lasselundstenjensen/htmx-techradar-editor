@@ -1,17 +1,20 @@
 <h1>CSV Data</h1>
 <div>
     <div class="row header">
-        {{range .Data.Headers}}
-        <div class="cell">{{.}}</div>
-        {{end}}
+        <div class="cell">Name</div>
+        <div class="cell">Ring</div>
+        <div class="cell">Quadrant</div>
+        <div class="cell">IsNew</div>
+        <div class="cell">Move</div>
+        <div class="cell">Description</div>
     </div>
     {{range .Data.Rows}}
     <div class="row">
         <div class="cell">{{safe .Name}}</div>
         <div class="cell">{{safe .Ring}}</div>
         <div class="cell">{{safe .Quadrant}}</div>
-        <div class="cell">{{safe .IsNew}}</div>
-        <div class="cell">{{safe .Move}}</div>
+        <div class="cell">{{safe (print .IsNew)}}</div>
+        <div class="cell">{{safe (print .Move)}}</div>
         <div class="cell">{{safe .Description}}</div>
     </div>
     {{end}}
